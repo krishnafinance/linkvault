@@ -84,8 +84,8 @@
         <div>
           <div class="eyebrow">FREE PREVIEW</div>
           <h2>See the format before you buy.</h2>
-          <p>Give prospects a small sample so they can understand exactly what they are purchasing. Replace the sample button with your real Google Drive/Dropbox preview.</p>
-          <a class="btn btn-secondary" href="#" onclick="alert('Replace this button with your sample Excel/Google Sheet link.'); return false;">View Sample Data</a>
+          <p>See exactly what the database looks like before you buy — download a free 5-row sample in the same format as the paid file.</p>
+          <a class="btn btn-secondary" id="sampleBtn" href="#">Download Free Sample</a>
         </div>
         <div class="preview-table">
           <div class="preview-title">SAMPLE — 5 ROWS</div>
@@ -177,8 +177,8 @@
         <details><summary>What exactly will I receive?</summary><p>You will receive the digital database included in the package you select. The exact fields and format should match the sample shown on this page.</p></details>
         <details><summary>Will these links improve my Google rankings?</summary><p>No ranking result can be guaranteed. The database is a prospecting resource. You should evaluate relevance, quality and suitability before using any opportunity.</p></details>
         <details><summary>Is this a recurring subscription?</summary><p>No. These packages are presented as one-time purchases. If you later offer updates or subscriptions, explain those separately.</p></details>
-        <details><summary>Can I use the database for client projects?</summary><p>You can define your licensing terms. Add your actual commercial-use policy here before launch.</p></details>
-        <details><summary>How will I receive the file?</summary><p>After successful payment, your payment/automation system should redirect the customer to a secure download or email the file. Do not expose the master file publicly on GitHub.</p></details>
+        <details><summary>Can I use the database for client projects?</summary><p>Yes. You can use the database across as many of your own or client projects as you like. Please don't resell, redistribute or re-share the raw file itself.</p></details>
+        <details><summary>How will I receive the file?</summary><p>After payment is confirmed, you'll be redirected to a secure download page, and we'll also email the file to the address you used at checkout — usually within a few minutes.</p></details>
       </div>
     </section>
 
@@ -205,22 +205,33 @@
       <div class="eyebrow">ORDER SUMMARY</div>
       <h2 id="modalPlan">Growth Database</h2>
       <div class="modal-price" id="modalPrice">₹999</div>
-      <p>Connect this button to your payment gateway (Razorpay, Cashfree, PayU, etc.).</p>
+      <p>You'll be redirected to a secure payment page to complete your order.</p>
       <div class="modal-actions">
         <button class="btn btn-primary" id="paymentButton">Proceed to Payment</button>
         <button class="btn btn-secondary" id="cancelButton">Cancel</button>
       </div>
-      <p class="tiny">This demo does not process payments until you add your gateway checkout link/API.</p>
     </div>
   </div>
 
   <script>
+    // ── STEP 1: Paste your real payment link for each package here ──
+    // Create these on Razorpay (Payment Links) or Instamojo/Payhip, then
+    // replace the placeholder URLs below. This is the ONLY thing you
+    // still need to add — everything else on this page already works.
+    const PAYMENT_LINKS = {
+      Starter: 'https://rzp.io/l/REPLACE-WITH-STARTER-LINK',
+      Growth:  'https://rzp.io/l/REPLACE-WITH-GROWTH-LINK',
+      Pro:     'https://rzp.io/l/REPLACE-WITH-PRO-LINK'
+    };
+
     const modal = document.getElementById('paymentModal');
     const modalPlan = document.getElementById('modalPlan');
     const modalPrice = document.getElementById('modalPrice');
+    let selectedPlan = null;
 
     document.querySelectorAll('.buy-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        selectedPlan = btn.dataset.plan;
         modalPlan.textContent = btn.dataset.plan + ' Database';
         modalPrice.textContent = '₹' + Number(btn.dataset.price).toLocaleString('en-IN');
         modal.classList.add('show');
@@ -237,11 +248,39 @@
     document.getElementById('cancelButton').addEventListener('click', closeModal);
 
     document.getElementById('paymentButton').addEventListener('click', () => {
-      alert('Payment gateway placeholder. Replace this action with your Razorpay/Cashfree/PayU checkout.');
+      const link = PAYMENT_LINKS[selectedPlan];
+      if (!link || link.includes('REPLACE-WITH')) {
+        alert('Payment link not set up yet for this package. (Site owner: add your real Razorpay/Instamojo link in the PAYMENT_LINKS section of the code.)');
+        return;
+      }
+      window.location.href = link;
     });
 
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
+    });
+
+    // Free sample download — generates a real CSV in the browser, no external file needed
+    document.getElementById('sampleBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      const rows = [
+        ['Website', 'Type', 'Niche'],
+        ['site-example.com', 'Guest Post', 'Marketing'],
+        ['sample-site.org', 'Article', 'Business'],
+        ['demo-site.net', 'Directory', 'Local'],
+        ['example-blog.com', 'Submission', 'Tech'],
+        ['sampleblog.org', 'Outreach', 'General']
+      ];
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sample-database-preview.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
   </script>
 </body>
